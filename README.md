@@ -365,7 +365,7 @@ visualize(fig, 8, 2, out_images, out_titles)
 
 ####2. Show some examples of test images to demonstrate how your pipeline is working.  What did you do to optimize the performance of your classifier?
 
-Searching  using YCrCb produced the best results.  Here are some example images run through the pipeline:
+Here is where YCrCb became my choice because it produced the best results. Here are some example images run through the pipeline:
 
 <p align="center"><img src="./images/pipelineimages.png" alt="End result"  /></p>
 
