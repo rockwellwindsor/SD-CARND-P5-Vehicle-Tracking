@@ -13,7 +13,7 @@ The goals / steps of this project are the following:
 * Run your pipeline on a video stream (start with the test_video.mp4 and later implement on full project_video.mp4) and create a heat map of recurring detections frame by frame to reject outliers and follow detected vehicles.
 * Estimate a bounding box for vehicles detected.
 
-###Here I will consider the rubric points individually.  
+### Here I will consider the rubric points individually.  
 
 ---
 
@@ -24,7 +24,6 @@ The goals / steps of this project are the following:
 The code for getting the HOG features was taken directly from the course work.
 
 ````
-
 # Define a function to return HOG features and visualization
 # Vis == False means we do not want to get an image back, True produces output image.
 def get_hog_features(img, 
@@ -116,7 +115,6 @@ The return looks like the images below.
 I then explored different color spaces on random images from each of the two classes and displayed them to get a feel for what the `skimage.hog()` output looks like. The other settings are all the same, based off of coursework and walk through video.
 
 ````
-
 color_space = ''
 orient = 9
 pix_per_cell = 8
@@ -264,7 +262,6 @@ This code was taken directly from the coursework and from the wlk through video.
 
 
 ````
-
 out_images = []
 out_maps = []
 out_titles = []
@@ -359,11 +356,10 @@ for img_src in example_images:
 
 fig = plt.figure(figsize = (12,24))
 visualize(fig, 8, 2, out_images, out_titles)  
-# 
 
 ````
 
-####2. Show some examples of test images to demonstrate how your pipeline is working.  What did you do to optimize the performance of your classifier?
+#### 2. Show some examples of test images to demonstrate how your pipeline is working.  What did you do to optimize the performance of your classifier?
 
 Here is where YCrCb became my choice because it produced the best results. Here are some example images run through the pipeline:
 
@@ -377,31 +373,42 @@ HLS, for example, had more false positives with the same settings
 
 ### Video Implementation
 
-####1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (somewhat wobbly or unstable bounding boxes are ok as long as you are identifying the vehicles most of the time with minimal false positives.)
+#### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (somewhat wobbly or unstable bounding boxes are ok as long as you are identifying the vehicles most of the time with minimal false positives.)
+
 Here's a [link to my video result](./project_video.mp4)
 
 
-####2. Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.
+#### 2. Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.
 
 I recorded the positions of positive detections in each frame of the video.  From the positive detections I created a heatmap and then thresholded that map to identify vehicle positions.  I then used `scipy.ndimage.measurements.label()` to identify individual blobs in the heatmap.  I then assumed each blob corresponded to a vehicle.  I constructed bounding boxes to cover the area of each blob detected.  
 
 Here's an example result showing the heatmap from a series of frames of video, the result of `scipy.ndimage.measurements.label()` and the bounding boxes then overlaid on the last frame of video:
 
-### Here are six frames and their corresponding heatmaps:
+##### Here are six frames and their corresponding heatmaps:
 
 <p align="center"><img src="./images/imageswithheatmaps.png" alt="End result"  /></p>
 
-### Here is the output of `scipy.ndimage.measurements.label()` on the integrated heatmap from all six frames:
+##### Here is the code using `scipy.ndimage.measurements.label()` on the images being processed:
 
+````
+def process_image(img):
+    out_img, heat_map = find_cars(img, scale)
+    labels = label(heat_map)
+    draw_img = draw_labeled_bboxes(np.copy(img), labels)
+    return draw_img
 
-### Here the resulting bounding boxes are drawn onto the last frame in the series:
+````
 
 ---
 
-###Discussion
+### Discussion
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
 I have yet to try it out on a busy street.  I also feel it would fail if there was a lot of movement, like in windy conditions, where things move across the rod.  Although, that is just a guess, nothing tested yet. I am also unsure how well it would do in less than ideal driving conditions such as rain, snow, night-time driving. etc.
 
 Overall I feel this is a good start but to make something like this truly useful It would need a lot of testing in different conditions.
+
+Improvements
+  * Need to adjust scale so I can detect images further away in the image.
+  * Need to do a better job smoothing out the boxes in order to eliminate flashing boxes.
