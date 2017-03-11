@@ -53,7 +53,7 @@ def get_hog_features(img,
 
 ````
 
-I visualize the rerturn on the HOG images after cell 5.
+I visualize the return on the HOG images after cell 5.
 
 ````
 # Choose random images from the images of cars and non cars read in
@@ -151,7 +151,7 @@ hog_feat = True
 
 #### 2. Explain how you settled on your final choice of HOG parameters.
 
-Based on the images created above I did not feel like it was obivous that one would be better than another.  I decided to wait to run the classifier and see if one produced clearly better results.
+Based on the images created above I did not feel like it was obvious that one would be better than another.  I decided to wait to run the classifier and see if color space produced clearly better results.
 
 #### 3. Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them).
 
@@ -252,13 +252,13 @@ print('Test accuracy of SVC = ', round(svc.score(X_test, y_test), 4))
 
 <p align="center"><img src="./images/hlsclassifierresult.png" alt="End result"  /></p>
 
-The results overall where not terribly different, but LUV and RGB where the lowest.
+The results overall where not terribly different, but LUV, RGB and YCrCb had the lowest scores.
 
 ### Sliding Window Search
 
 #### 1. Describe how (and identify where in your code) you implemented a sliding window search.  How did you decide what scales to search and how much to overlap windows?
 
-This code was taken directly from the coursework and from the wlk through video.
+This code was taken directly from the coursework and from the walk through video.
 
 
 ````
@@ -375,14 +375,31 @@ HLS, for example, had more false positives with the same settings
 
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (somewhat wobbly or unstable bounding boxes are ok as long as you are identifying the vehicles most of the time with minimal false positives.)
 
-Here's a [link to my video result](./project_video.mp4)
-
+Here's a [link to my video result](https://www.youtube.com/watch?v=a87fzSZxbrA&feature=youtu.be)
 
 #### 2. Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.
 
-I recorded the positions of positive detections in each frame of the video.  From the positive detections I created a heatmap and then thresholded that map to identify vehicle positions.  I then used `scipy.ndimage.measurements.label()` to identify individual blobs in the heatmap.  I then assumed each blob corresponded to a vehicle.  I constructed bounding boxes to cover the area of each blob detected.  
+I applied the a threshold using the code below, taken from stage 35 of the course.
 
-Here's an example result showing the heatmap from a series of frames of video, the result of `scipy.ndimage.measurements.label()` and the bounding boxes then overlaid on the last frame of video:
+Inside the process image function.  I ended up setting this to 0 and just narrowing down the region.
+
+````
+....
+heat_map = apply_threshold(heat_map, 0)
+....
+````
+
+The method is defined in cell 33.
+
+````
+def apply_threshold(heatmap, threshold):
+    
+    # Zero out pixels below the threshold
+    heatmap[heatmap <= threshold] = 0
+    # Return the image after applying threshold
+    return heatmap
+
+````
 
 ##### Here are six frames and their corresponding heatmaps:
 
@@ -393,6 +410,7 @@ Here's an example result showing the heatmap from a series of frames of video, t
 ````
 def process_image(img):
     out_img, heat_map = find_cars(img, scale)
+    heat_map = apply_threshold(heat_map, 0)
     labels = label(heat_map)
     draw_img = draw_labeled_bboxes(np.copy(img), labels)
     return draw_img
@@ -405,10 +423,12 @@ def process_image(img):
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-I have yet to try it out on a busy street.  I also feel it would fail if there was a lot of movement, like in windy conditions, where things move across the rod.  Although, that is just a guess, nothing tested yet. I am also unsure how well it would do in less than ideal driving conditions such as rain, snow, night-time driving. etc.
+I have yet to try it out on a busy street.  I feel like it would fail if there was a lot of movement, like in windy conditions, where things move across the rod.  Although, that is just a guess, nothing tested yet. I am also unsure how well it would do in less than ideal driving conditions such as rain, snow, night-time driving. etc.
 
 Overall I feel this is a good start but to make something like this truly useful It would need a lot of testing in different conditions.
 
 Improvements
   * Need to adjust scale so I can detect images further away in the image.
   * Need to do a better job smoothing out the boxes in order to eliminate flashing boxes.
+  * I would like to develop this further to provide information about the other vehicles like speed distance away from the car.
+  * I would like to figure out a way to mark cars coming at me from the other direction as well.  In this cvideo example it is unimportant, but on a 2 lane road I think it would be more useful.
