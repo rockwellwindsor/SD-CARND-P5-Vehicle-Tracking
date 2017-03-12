@@ -379,6 +379,12 @@ Here's a [link to my video result](https://www.youtube.com/watch?v=a87fzSZxbrA&f
 
 #### 2. Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.
 
+* How did you reduce false positives in the pipeline to make it more reliable?
+
+I was able to reduce false positives by tweaking the scale, ystart and ystop variables and scale.
+
+* Did you apply thresholding in order to improve on the performance of the classifier?
+
 I applied the a threshold using the code below, taken from stage 35 of the course.
 
 Inside the process image function.  I ended up setting this to 0 and just narrowing down the region.
